@@ -1,6 +1,6 @@
 # Docker
 
-Run 9Router in a container. Published image: [`decolua/portway`](https://hub.docker.com/r/decolua/portway) — multi-platform `linux/amd64` + `linux/arm64`.
+Run Portway in a container. Published image: [`ghcr.io/azifzr/9router`](https://github.com/AzifZR/9router/pkgs/container/9router) — multi-platform `linux/amd64` + `linux/arm64`.
 
 ---
 
@@ -14,7 +14,7 @@ docker run -d \
   -v "$HOME/.9router:/app/data" \
   -e DATA_DIR=/app/data \
   --name portway \
-  decolua/portway:latest
+  ghcr.io/azifzr/9router:latest
 ```
 
 App listens on port `20128`. Open: http://localhost:20128
@@ -61,17 +61,17 @@ docker run -d \
   -e HOSTNAME=0.0.0.0 \
   -e DEBUG=true \
   --name portway \
-  decolua/portway:latest
+  ghcr.io/azifzr/9router:latest
 ```
 
 ## Optional Headroom sidecar
 
-The 9Router image does not bundle Python or Headroom. To use Headroom in Docker, run it as a separate service and point 9Router at that proxy:
+The Portway image does not bundle Python or Headroom. To use Headroom in Docker, run it as a separate service and point 9Router at that proxy:
 
 ```yaml
 services:
   portway:
-    image: decolua/portway:latest
+    image: ghcr.io/azifzr/9router:latest
     ports:
       - "20128:20128"
     volumes:
@@ -95,7 +95,7 @@ If Headroom runs on the Docker host instead of as a sidecar, use `http://host.do
 ## Update to latest
 
 ```bash
-docker pull decolua/portway:latest
+docker pull ghcr.io/azifzr/9router:latest
 docker rm -f portway
 # re-run the quick start command
 ```
@@ -107,19 +107,18 @@ docker rm -f portway
 ## Build image locally (test)
 
 ```bash
-cd app && docker build -t portway .
+docker build -t portway .
 
 docker run --rm -p 20128:20128 \
   -v "$HOME/.9router:/app/data" \
   -e DATA_DIR=/app/data \
-  9router
+  portway
 ```
 
 ## Publish (automatic via CI)
 
-Push a git tag `v*` → GitHub Actions builds multi-platform (amd64+arm64) and pushes to:
-- `ghcr.io/decolua/portway:v{version}` + `:latest`
-- `decolua/portway:v{version}` + `:latest`
+Push to `master` (or a git tag `v*`, or manual dispatch) → GitHub Actions builds multi-platform (amd64+arm64) and pushes to:
+- `ghcr.io/azifzr/9router:v{version}` + `:latest`
 
 ```bash
 # Use scripts/release.js (recommended)

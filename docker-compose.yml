@@ -1,6 +1,6 @@
 services:
   portway:
-    image: decolua/portway:latest
+    image: ghcr.io/azifzr/9router:latest
     container_name: portway
     restart: always
     ports:
