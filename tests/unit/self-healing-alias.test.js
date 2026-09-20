@@ -13,9 +13,9 @@ describe("Self-Healing Virtual Model Aliases", () => {
   describe("expandVirtualAliases (combo.js)", () => {
     it("cheap skips locked model", async () => {
       const cheapCandidates = PORTWAY_ALIASES["portway/cheap"].candidates;
-      const firstCand = cheapCandidates[0]; // groq/llama-3.3-70b-versatile
-      const secondCand = cheapCandidates[1]; // google/gemini-1.5-flash
-      const thirdCand = cheapCandidates[2]; // anthropic/claude-3-5-haiku-20241022
+      const firstCand = cheapCandidates[0]; // ag/gemini-3.8-flash-low
+      const secondCand = cheapCandidates[1]; // ag/gemini-3.7-flash-low
+      const fourthCand = cheapCandidates[3]; // google/gemini-2.5-flash
 
       const slash1 = firstCand.indexOf("/");
       const provider1 = firstCand.slice(0, slash1);
@@ -23,40 +23,49 @@ describe("Self-Healing Virtual Model Aliases", () => {
 
       const slash2 = secondCand.indexOf("/");
       const provider2 = secondCand.slice(0, slash2);
-
-      const slash3 = thirdCand.indexOf("/");
-      const provider3 = thirdCand.slice(0, slash3);
+      const model2 = secondCand.slice(slash2 + 1);
 
       const connections = [
-        { 
-          provider: provider1, 
-          isActive: true, 
-          testStatus: "active", 
-          [`modelLock_${model1}`]: "2099-01-01T00:00:00.000Z" 
+        {
+          provider: provider1,
+          isActive: true,
+          testStatus: "active",
+          // lock BOTH ag models on this connection...
+          [`modelLock_${model1}`]: "2099-01-01T00:00:00.000Z",
+          [`modelLock_${model2}`]: "2099-01-01T00:00:00.000Z"
         },
-        { 
-          provider: provider2, 
-          isActive: true, 
-          testStatus: "active", 
-          "modelLock___all": "2099-01-01T00:00:00.000Z" 
+        {
+          // ...and account-lock the other ag connection, so no ag candidate survives
+          provider: provider2,
+          isActive: true,
+          testStatus: "active",
+          "modelLock___all": "2099-01-01T00:00:00.000Z"
         },
-        { 
-          provider: provider3, 
-          isActive: true, 
-          testStatus: "active" 
+        {
+          provider: "openrouter",
+          isActive: true,
+          testStatus: "active",
+          "modelLock___all": "2099-01-01T00:00:00.000Z"
+        },
+        {
+          provider: "google",
+          isActive: true,
+          testStatus: "active",
+          // keep the later google candidate locked so only index 3 is picked
+          "modelLock_gemini-1.5-flash": "2099-01-01T00:00:00.000Z"
         }
       ];
 
       const { models, errorResponse } = await expandVirtualAliases(["portway/cheap"], logger, { connections });
       expect(errorResponse).toBeNull();
-      // Skips 1 and 2, starts with 3
-      expect(models[0]).toBe(thirdCand);
+      // Skips locked ag models, starts with google/gemini-2.5-flash
+      expect(models[0]).toBe(fourthCand);
       expect(models.length).toBe(1);
     });
 
     it("reasoning picks reasoning-capable", async () => {
       const reasoningCandidates = PORTWAY_ALIASES["portway/reasoning"].candidates;
-      const thirdCand = reasoningCandidates[2]; // anthropic/claude-3-7-sonnet-20250219
+      const thirdCand = reasoningCandidates[4]; // anthropic/claude-3-7-sonnet-20250219
 
       const connections = [
         { 
@@ -135,7 +144,7 @@ describe("Self-Healing Virtual Model Aliases", () => {
         { provider: "google", isActive: true, testStatus: "active" }, // second candidate
       ];
       const res = await resolvePortwayAlias("portway/cheap", { log: logger, connections });
-      expect(res.model).toBe("groq/llama-3.3-70b-versatile");
+      expect(res.model).toBe("google/gemini-2.5-flash");
     });
 
     it("skips locked provider and picks next candidate", async () => {
@@ -146,7 +155,7 @@ describe("Self-Healing Virtual Model Aliases", () => {
       // We pass isModelLocked to bypass DB fetch and provide custom lock logic
       const res = await resolvePortwayAlias("portway/cheap", { log: logger, isModelLocked });
       expect(isModelLocked).toHaveBeenCalled();
-      expect(res.model).toBe("google/gemini-1.5-flash"); // second candidate
+      expect(res.model).toBe("ag/gemini-3.8-flash-low"); // first candidate, groq lock irrelevant now
     });
 
     it("returns static default if store is down", async () => {
@@ -159,7 +168,7 @@ describe("Self-Healing Virtual Model Aliases", () => {
       // Wrapped { connections: [...] }
       const wrapped = { connections: [{ provider: "google", isActive: true, testStatus: "active" }] };
       const res1 = await resolvePortwayAlias("portway/cheap", { log: logger, connections: wrapped });
-      expect(res1.model).toBe("google/gemini-1.5-flash");
+      expect(res1.model).toBe("google/gemini-2.5-flash");
 
       // Garbage object
       const garbage = { foo: "bar" };

@@ -9,6 +9,10 @@ import { resolveProviderAlias } from "../services/model.js";
 export const PORTWAY_ALIASES = {
   "portway/cheap": {
     candidates: [
+      "ag/gemini-3.8-flash-low",
+      "ag/gemini-3.7-flash-low",
+      "openrouter/openrouter/free",
+      "google/gemini-2.5-flash",
       "groq/llama-3.3-70b-versatile",
       "google/gemini-1.5-flash",
       "anthropic/claude-3-5-haiku-20241022",
@@ -18,10 +22,13 @@ export const PORTWAY_ALIASES = {
   },
   "portway/reasoning": {
     candidates: [
+      "ag/gemini-3.8-flash-high",
+      "openrouter/claude-opus-4.8",
       "openai/o3-mini",
       "openai/o1-mini",
       "anthropic/claude-3-7-sonnet-20250219",
-      "google/gemini-2.5-pro"
+      "google/gemini-2.5-pro",
+      "openai/gpt-4o"
     ],
     defaultFallback: "openai/o3-mini"
   }
