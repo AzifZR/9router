@@ -82,6 +82,55 @@ function sortQuotas(quotas, sortMode) {
 }
 
 /**
+ * Isolated reset-countdown cell: owns its 1s tick so only this label
+ * re-renders, never the row/table. Same text/format as before.
+ */
+function ResetCountdown({ resetAt, recurring, compact, resetPrimary, resetSecondary }) {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!resetAt) return;
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [resetAt]);
+
+  const countdown = formatResetTime(resetAt);
+  const resetDisplay = formatResetTimeDisplay(resetAt);
+  // recurring defaults true: a missing flag means the quota
+  // refreshes at resetAt. Bonus/one-shot packs set recurring:false
+  // and their resetAt is a hard expiry, so word it as "expires".
+  const countdownLabel = recurring ? `in ${countdown}` : `expires in ${countdown}`;
+
+  if (countdown === "-" && !resetDisplay) {
+    return <div className={`${resetPrimary} text-text-muted italic`}>N/A</div>;
+  }
+  if (compact) {
+    return (
+      <div
+        className={`${resetPrimary} text-text-primary font-medium truncate`}
+        title={resetDisplay || ""}
+      >
+        {countdown !== "-" ? countdownLabel : resetDisplay}
+      </div>
+    );
+  }
+  return (
+    <div className="min-w-0 space-y-0.5">
+      {countdown !== "-" && (
+        <div className={`${resetPrimary} text-text-primary font-medium truncate`}>
+          {countdownLabel}
+        </div>
+      )}
+      {resetDisplay && (
+        <div className={`${resetSecondary} text-text-muted truncate`}>
+          {resetDisplay}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
  * Quota Table Component - Table-based display for quota data
  */
 export default function QuotaTable({
@@ -155,13 +204,6 @@ export default function QuotaTable({
           const colors = isCreditBalance
             ? { text: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500", bgLight: "bg-blue-500/10", emoji: "💰" }
             : getColorClasses(quota.remaining);
-          const countdown = formatResetTime(quota.resetAt);
-          const resetDisplay = formatResetTimeDisplay(quota.resetAt);
-          // recurring defaults true: a missing flag means the quota
-          // refreshes at resetAt. Bonus/one-shot packs set recurring:false
-          // and their resetAt is a hard expiry, so word it as "expires".
-          const recurring = quota.recurring !== false;
-          const countdownLabel = recurring ? `in ${countdown}` : `expires in ${countdown}`;
 
           return (
             <div
@@ -214,31 +256,13 @@ export default function QuotaTable({
 
               {/* Reset time */}
               <div className="min-w-0 shrink">
-                {countdown !== "-" || resetDisplay ? (
-                  compact ? (
-                    <div
-                      className={`${resetPrimary} text-text-primary font-medium truncate`}
-                      title={resetDisplay || ""}
-                    >
-                      {countdown !== "-" ? countdownLabel : resetDisplay}
-                    </div>
-                  ) : (
-                    <div className="min-w-0 space-y-0.5">
-                      {countdown !== "-" && (
-                        <div className={`${resetPrimary} text-text-primary font-medium truncate`}>
-                          {countdownLabel}
-                        </div>
-                      )}
-                      {resetDisplay && (
-                        <div className={`${resetSecondary} text-text-muted truncate`}>
-                          {resetDisplay}
-                        </div>
-                      )}
-                    </div>
-                  )
-                ) : (
-                  <div className={`${resetPrimary} text-text-muted italic`}>N/A</div>
-                )}
+                <ResetCountdown
+                  resetAt={quota.resetAt}
+                  recurring={quota.recurring !== false}
+                  compact={compact}
+                  resetPrimary={resetPrimary}
+                  resetSecondary={resetSecondary}
+                />
               </div>
 
               {/* Hide action */}

@@ -8,9 +8,7 @@ import {
   TUNNEL_BENEFITS,
   TUNNEL_PING_INTERVAL_MS,
   TUNNEL_PING_MAX_MS,
-  STATUS_POLL_FAST_MS,
   REACHABLE_MISS_THRESHOLD,
-  CLIENT_PING_FAST_MS,
 } from "./endpointConstants";
 import { clientPingUrl, clientPingAny } from "./endpointPing";
 import EndpointRow from "./components/EndpointRow";
@@ -102,27 +100,12 @@ export default function APIPageClient({ machineId }) {
     loadSettings();
   }, []);
 
-  // Status poll: only while degraded (not yet reachable). Stop once healthy to avoid spam.
-  // Visibility re-check: refresh once when tab becomes visible.
-  useEffect(() => {
-    const anyEnabled = tunnelEnabled || tsEnabled;
-    if (!anyEnabled) return;
-    const tunnelHealthy = !tunnelEnabled || tunnelReachable;
-    const tsHealthy = !tsEnabled || tsReachable;
-    const allHealthy = tunnelHealthy && tsHealthy;
-    const onVisible = () => { if (!document.hidden) syncTunnelStatus(); };
-    document.addEventListener("visibilitychange", onVisible);
-    if (allHealthy) return () => document.removeEventListener("visibilitychange", onVisible);
-    const timer = setInterval(() => { if (!document.hidden) syncTunnelStatus(); }, STATUS_POLL_FAST_MS);
-    return () => {
-      clearInterval(timer);
-      document.removeEventListener("visibilitychange", onVisible);
-    };
-  }, [tunnelEnabled, tsEnabled, tunnelReachable, tsReachable]);
-
-  // Browser-side periodic ping: probes tunnel/tailscale URLs directly so UI stays
-  // "reachable" even when backend DNS (1.1.1.1) hiccups on *.ts.net or *.trycloudflare.com.
-  // Adaptive: slow when healthy, fast when degraded; pause when tab hidden.
+  // Consolidated status poll: a SINGLE 2s interval drives both the server
+  // status sync and the browser-side reachability probes every tick —
+  // same 2s freshness as the original two timers, but one timer total.
+  // Ticks are skipped entirely while the tab is hidden; a visibility
+  // re-check refreshes once when the tab becomes visible again.
+  // No timer while healthy.
   useEffect(() => {
     const probeBoth = async () => {
       if (document.hidden) return;
@@ -143,14 +126,22 @@ export default function APIPageClient({ machineId }) {
         tsClientReachableRef.current = false;
       }
     };
-    const anyEnabled = (tunnelEnabled && (tunnelUrl || tunnelPublicUrl)) || (tsEnabled && tsUrl);
-    if (!anyEnabled) return;
+    const onVisible = () => { if (!document.hidden) { syncTunnelStatus(); probeBoth(); } };
+    if (!tunnelEnabled && !tsEnabled) return;
+    document.addEventListener("visibilitychange", onVisible);
     probeBoth();
     const tunnelHealthy = !tunnelEnabled || tunnelReachable;
     const tsHealthy = !tsEnabled || tsReachable;
-    if (tunnelHealthy && tsHealthy) return;
-    const id = setInterval(probeBoth, CLIENT_PING_FAST_MS);
-    return () => clearInterval(id);
+    if (tunnelHealthy && tsHealthy) return () => document.removeEventListener("visibilitychange", onVisible);
+    const timer = setInterval(() => {
+      if (document.hidden) return;
+      syncTunnelStatus();
+      probeBoth();
+    }, 2000);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [tunnelEnabled, tunnelUrl, tunnelPublicUrl, tsEnabled, tsUrl, tunnelReachable, tsReachable]);
 
   // Client-side reachable only (server no longer probes; watchdog handles backend health).

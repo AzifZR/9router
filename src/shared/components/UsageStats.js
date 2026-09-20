@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { FREE_PROVIDERS, AI_PROVIDERS } from "@/shared/constants/providers";
 
@@ -17,7 +17,16 @@ import UsageTable, { fmt, fmtTime } from "@/app/(dashboard)/dashboard/usage/comp
 import dynamic from "next/dynamic";
 // Lazy-load: keeps @xyflow/react out of the shared bundle until topology renders
 const ProviderTopology = dynamic(() => import("@/app/(dashboard)/dashboard/usage/components/ProviderTopology"), { ssr: false });
-import UsageChart from "@/app/(dashboard)/dashboard/usage/components/UsageChart";
+// Lazy-load: keeps recharts out of the Usage bundle until the chart renders.
+// Same card chrome as UsageChart so the skeleton matches the final layout.
+const UsageChart = dynamic(() => import("@/app/(dashboard)/dashboard/usage/components/UsageChart"), {
+  ssr: false,
+  loading: () => (
+    <Card className="flex min-w-0 flex-col gap-3 p-3 sm:p-4">
+      <div className="h-48 flex items-center justify-center text-text-muted text-sm">Loading...</div>
+    </Card>
+  ),
+});
 
 function timeAgo(timestamp) {
   const diff = Math.floor((Date.now() - new Date(timestamp)) / 1000);
@@ -27,17 +36,37 @@ function timeAgo(timestamp) {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-// Auto-update time display every second without re-rendering parent
+// Auto-update time display every second without re-rendering parent.
+// Owns its tick locally so only this label re-renders, never the row/table.
 function TimeAgo({ timestamp }) {
   const [, setTick] = useState(0);
-  
+
   useEffect(() => {
     const timer = setInterval(() => setTick(t => t + 1), 1000);
     return () => clearInterval(timer);
   }, []);
-  
+
   return <>{timeAgo(timestamp)}</>;
 }
+
+// Memoized so a TimeAgo tick or an SSE update only re-renders changed rows.
+const RequestRow = memo(function RequestRow({ r }) {
+  const ok = !r.status || r.status === "ok" || r.status === "success";
+  return (
+    <tr className="hover:bg-bg-subtle transition-colors">
+      <td className="py-1.5">
+        <span className={`block w-1.5 h-1.5 rounded-full ${ok ? "bg-success" : "bg-error"}`} />
+      </td>
+      <td className="py-1.5 font-mono truncate max-w-[120px]" title={r.model}>{r.model}</td>
+      <td className="py-1.5 text-right whitespace-nowrap">
+        <span className="text-primary">{fmt(r.promptTokens)}↑</span>
+        {" "}
+        <span className="text-success">{fmt(r.completionTokens)}↓</span>
+      </td>
+      <td className="py-1.5 text-right text-text-muted whitespace-nowrap"><TimeAgo timestamp={r.timestamp} /></td>
+    </tr>
+  );
+});
 
 function RecentRequests({ requests = [] }) {
   return (
@@ -61,23 +90,9 @@ function RecentRequests({ requests = [] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
-              {requests.map((r, i) => {
-                const ok = !r.status || r.status === "ok" || r.status === "success";
-                return (
-                  <tr key={i} className="hover:bg-bg-subtle transition-colors">
-                    <td className="py-1.5">
-                      <span className={`block w-1.5 h-1.5 rounded-full ${ok ? "bg-success" : "bg-error"}`} />
-                    </td>
-                    <td className="py-1.5 font-mono truncate max-w-[120px]" title={r.model}>{r.model}</td>
-                    <td className="py-1.5 text-right whitespace-nowrap">
-                      <span className="text-primary">{fmt(r.promptTokens)}↑</span>
-                      {" "}
-                      <span className="text-success">{fmt(r.completionTokens)}↓</span>
-                    </td>
-                    <td className="py-1.5 text-right text-text-muted whitespace-nowrap"><TimeAgo timestamp={r.timestamp} /></td>
-                  </tr>
-                );
-              })}
+              {requests.map((r, i) => (
+                <RequestRow key={i} r={r} />
+              ))}
             </tbody>
           </table>
         </div>

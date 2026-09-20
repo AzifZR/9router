@@ -354,6 +354,35 @@ function buildLayout(providers, activeSet, lastSet, errorSet) {
   return { nodes, edges };
 }
 
+// Owns the 1s force-stop ticker in isolation: it only notifies the parent
+// (via a stable string key) when the timed-out membership actually changes,
+// so buildLayout() and the ReactFlow tree don't rebuild every second.
+function TimeoutWatcher({ rawActiveSet, firstSeenRef, onExpiredChange }) {
+  useEffect(() => {
+    if (rawActiveSet.size === 0) {
+      onExpiredChange("");
+      return;
+    }
+    const id = setInterval(() => {
+      const now = Date.now();
+      const expired = [];
+      for (const p of rawActiveSet) {
+        const ts = firstSeenRef.current[p];
+        if (ts && now - ts >= FE_ACTIVE_TIMEOUT_MS) expired.push(p);
+      }
+      onExpiredChange(expired.sort().join(","));
+    }, FE_ACTIVE_TICK_MS);
+    return () => clearInterval(id);
+  }, [rawActiveSet, firstSeenRef, onExpiredChange]);
+  return null;
+}
+
+TimeoutWatcher.propTypes = {
+  rawActiveSet: PropTypes.object.isRequired,
+  firstSeenRef: PropTypes.object.isRequired,
+  onExpiredChange: PropTypes.func.isRequired,
+};
+
 export default function ProviderTopology({ providers = [], activeRequests = [], lastProvider = "", errorProvider = "" }) {
   // Serialize to stable string keys so useMemo only re-runs when values actually change
   const activeKey = useMemo(
@@ -369,7 +398,9 @@ export default function ProviderTopology({ providers = [], activeRequests = [], 
 
   // Track firstSeen per active provider; drop provider if running too long (BE stuck)
   const firstSeenRef = useRef({});
-  const [tick, setTick] = useState(0);
+  // Key of providers past FE_ACTIVE_TIMEOUT_MS — updated by TimeoutWatcher
+  // (isolated 1s ticker) only when membership actually changes.
+  const [expiredKey, setExpiredKey] = useState("");
 
   useEffect(() => {
     const seen = firstSeenRef.current;
@@ -382,21 +413,16 @@ export default function ProviderTopology({ providers = [], activeRequests = [], 
     }
   }, [rawActiveSet]);
 
-  useEffect(() => {
-    if (rawActiveSet.size === 0) return;
-    const id = setInterval(() => setTick((t) => t + 1), FE_ACTIVE_TICK_MS);
-    return () => clearInterval(id);
-  }, [rawActiveSet]);
+  const onExpiredChange = useCallback((key) => {
+    // Bail out on identical key so the parent never re-renders on a tick.
+    setExpiredKey((prev) => (prev === key ? prev : key));
+  }, []);
 
   const activeSet = useMemo(() => {
-    const now = Date.now();
-    const filtered = new Set();
-    for (const p of rawActiveSet) {
-      const ts = firstSeenRef.current[p];
-      if (!ts || now - ts < FE_ACTIVE_TIMEOUT_MS) filtered.add(p);
-    }
-    return filtered;
-  }, [rawActiveSet, tick]);
+    if (!expiredKey) return rawActiveSet;
+    const expired = new Set(expiredKey.split(","));
+    return new Set([...rawActiveSet].filter((p) => !expired.has(p)));
+  }, [rawActiveSet, expiredKey]);
 
   const { nodes, edges } = useMemo(
     () => buildLayout(providers, activeSet, lastSet, errorSet),
@@ -438,6 +464,7 @@ export default function ProviderTopology({ providers = [], activeRequests = [], 
 
   return (
     <div ref={containerRef} className="h-[320px] w-full min-w-0 rounded-lg border border-border bg-bg-subtle/30 sm:h-[480px]">
+      <TimeoutWatcher rawActiveSet={rawActiveSet} firstSeenRef={firstSeenRef} onExpiredChange={onExpiredChange} />
       {providers.length === 0 ? (
         <div className="h-full flex items-center justify-center text-text-muted text-sm">
           No providers connected
