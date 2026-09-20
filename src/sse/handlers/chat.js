@@ -16,6 +16,7 @@ import { getTransform as getPxpipeTransform } from "@/lib/pxpipe/loader.js";
 import { appendPxpipeEvent } from "@/lib/pxpipe/events.js";
 import { errorResponse, unavailableResponse } from "open-sse/utils/error.js";
 import { handleComboChat, handleFusionChat, detectRequiredCapabilities } from "open-sse/services/combo.js";
+import { resolvePortwayAlias } from "open-sse/config/aliases.js";
 import { augmentModelsWithCapacityAdapter, withCapacityAdapterStripping, getActiveAdapterStrategy } from "open-sse/services/capacityAdapter.js";
 import { handleBypassRequest } from "open-sse/utils/bypassHandler.js";
 import { HTTP_STATUS } from "open-sse/config/runtimeConfig.js";
@@ -83,6 +84,18 @@ export async function handleChat(request, clientRawRequest = null) {
   if (!modelStr) {
     log.warn("CHAT", "Missing model");
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Missing model");
+  }
+
+  // Early virtual alias expansion (portway/* aliases)
+  if (typeof modelStr === "string" && modelStr.startsWith("portway/")) {
+    const aliasResult = await resolvePortwayAlias(modelStr, { log });
+    if (aliasResult?.error400) {
+      return errorResponse(HTTP_STATUS.BAD_REQUEST, aliasResult.error400);
+    }
+    if (aliasResult?.model) {
+      modelStr = aliasResult.model;
+      body.model = modelStr;
+    }
   }
 
   // Bypass naming/warmup requests before combo rotation to avoid wasting rotation slots

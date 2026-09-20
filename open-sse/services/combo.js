@@ -6,55 +6,15 @@ import { checkFallbackError, formatRetryAfter } from "./accountFallback.js";
 import { unavailableResponse, errorResponse } from "../utils/error.js";
 import { getCapabilitiesForModel } from "../providers/capabilities.js";
 import { extractTextContent } from "../translator/formats/gemini.js";
-import { PORTWAY_ALIASES } from "../config/aliases.js";
+import {
+  PORTWAY_ALIASES,
+  resetAliasStoreErrorFlag,
+  fetchHealthConnections,
+  isConnectionHealthyForModel,
+  resolvePortwayAlias,
+} from "../config/aliases.js";
 import { resolveProviderAlias } from "./model.js";
-
-// ============================================================================
-// Virtual Alias Expansion (Self-Healing)
-// ============================================================================
-
-let storeErrorLogged = false;
-export function resetAliasStoreErrorFlag() { storeErrorLogged = false; }
-
-async function fetchHealthConnections(log, forceError = false) {
-  try {
-    if (forceError) {
-      throw new Error("Simulated health store failure");
-    }
-    let mod;
-    try {
-      mod = await import("../../src/lib/localDb.js");
-    } catch {
-      mod = await import("@/lib/localDb");
-    }
-    if (typeof mod?.getProviderConnections === "function") {
-      return await mod.getProviderConnections({ isActive: true });
-    }
-    throw new Error("getProviderConnections not exported");
-  } catch (err) {
-    if (!storeErrorLogged) {
-      storeErrorLogged = true;
-      const msg = `Health store unreadable, falling back to static default alias candidates: ${err?.message || err}`;
-      if (log && typeof log.warn === "function") log.warn("ALIAS", msg);
-      else console.warn(`[ALIAS] ${msg}`);
-    }
-    return null;
-  }
-}
-
-function isConnectionHealthyForModel(conn, modelId) {
-  if (!conn) return false;
-  if (conn.isActive === false || conn.isActive === 0) return false;
-  if (conn.testStatus === "unavailable" || conn.testStatus === "error") return false;
-  const now = Date.now();
-  const accountLock = conn.modelLock___all || conn["modelLock___all"];
-  if (accountLock && new Date(accountLock).getTime() > now) return false;
-  if (modelId) {
-    const modelLock = conn[`modelLock_${modelId}`] || conn["modelLock_" + modelId];
-    if (modelLock && new Date(modelLock).getTime() > now) return false;
-  }
-  return true;
-}
+export { resetAliasStoreErrorFlag, resolvePortwayAlias };
 
 export async function expandVirtualAliases(models, log, options = {}) {
   if (!Array.isArray(models) || models.length === 0) return { models, errorResponse: null };
