@@ -30,6 +30,7 @@ import { stripUnsupportedModalities } from "../translator/concerns/modality.js";
 import { prefetchRemoteImages } from "../translator/concerns/prefetch.js";
 import { defaultClaudeToolType, shouldDefaultClaudeToolType } from "../translator/concerns/toolCall.js";
 import { resolveSessionId } from "../utils/sessionManager.js";
+import { getPromptCache, setPromptCache } from "../cache/promptCache.js";
 
 /**
  * Core chat handler - shared between SSE and Worker
@@ -131,6 +132,12 @@ export async function handleChatCore({ body, modelInfo, credentials, log, onCred
   // Only force non-streaming when client didn't explicitly request it.
   const detectedTool = detectClientTool(clientRawRequest?.headers || {}, body);
   if (detectedTool === "deepseek-tui" && body.stream !== true) stream = false;
+
+  const cachedRes = !stream && getPromptCache(model, body);
+  if (cachedRes) {
+    if (log?.line) log.line(reqTag, "⚡", `CACHE HIT · ${model}`);
+    return new Response(JSON.stringify(cachedRes), { status: 200, headers: { "Content-Type": "application/json" } });
+  }
 
   // Check client Accept header preference for non-streaming requests
   // This fixes AI SDK compatibility where clients send Accept: application/json
@@ -487,6 +494,12 @@ export async function handleChatCore({ body, modelInfo, credentials, log, onCred
   // True non-streaming response
   if (!stream) {
     const result = await handleNonStreamingResponse({ ...sharedCtx, providerResponse, sourceFormat, targetFormat: providerResponseFormat, reqLogger, toolNameMap, customToolNames, trackDone, appendLog });
+    if (result && result.status === 200) {
+      try {
+        const cloned = result.clone();
+        cloned.json().then(json => setPromptCache(model, body, json)).catch(() => {});
+      } catch {}
+    }
     streamController.handleComplete();
     return result;
   }
