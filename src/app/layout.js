@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import "material-symbols/outlined.css";
 import "./globals.css";
 import { ThemeProvider } from "@/shared/components/ThemeProvider";
 import "@/lib/network/initOutboundProxy"; // Auto-initialize outbound proxy env
@@ -32,26 +33,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Material Symbols font CSS loads deferred (media-print swap) so it
-            no longer blocks first paint. Icons stay hidden via the
-            opacity-0 rule in globals.css until the anti-flash script below
-            adds .fonts-loaded once the font is ready. */}
-        <link
-          rel="preload"
-          href="/fonts/material-symbols-outlined.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="stylesheet"
-          href="/fonts/material-symbols-outlined.css"
-          media="print"
-          onLoad="this.media='all'"
-        />
-        <noscript>
-          <link rel="stylesheet" href="/fonts/material-symbols-outlined.css" />
-        </noscript>
         {/* Apply persisted theme before first paint so a reload does not flash the
             default (light) theme before the client store hydrates. Mirrors the
             zustand-persist "theme" key and the `dark` class applyTheme() sets. */}
