@@ -10,6 +10,7 @@ import { proxyAwareFetch } from "open-sse/utils/proxyFetch.js";
 import { resolveConnectionProxyConfig } from "@/lib/network/connectionProxy";
 import { refreshAndUpdateCredentials } from "@/app/api/usage/[connectionId]/route.js";
 import { QUOTA_AUTOPING_CONFIG } from "@/shared/constants/config";
+import { PROVIDERS } from "open-sse/config/providers.js";
 
 const C = QUOTA_AUTOPING_CONFIG;
 const CLAUDE_PING_URL = "https://api.anthropic.com/v1/messages?beta=true";
@@ -24,6 +25,22 @@ const providerHandlers = {
     sendPing: sendCodexPing,
   },
 };
+
+// Generic lightweight ping for standard providers (e.g. models list or light GET)
+async function sendGenericPing(connection, proxyOptions, deps) {
+  const providerDef = PROVIDERS[connection.provider];
+  let url = providerDef?.baseUrl || "https://api.openai.com/v1";
+  url = url.replace(/\/chat\/completions$/, "").replace(/\/+$/, "") + "/models";
+
+  const headers = {
+    Authorization: `Bearer ${connection.apiKey || connection.accessToken}`,
+  };
+
+  const start = Date.now();
+  const res = await deps.proxyAwareFetch(url, { method: "GET", headers }, proxyOptions);
+  const latencyMs = Date.now() - start;
+  return { ok: res.ok, latencyMs };
+}
 
 // Survive Next.js hot reload and keep one scheduler per server process.
 const g = (global.__quotaAutoPing ??= {
@@ -264,6 +281,7 @@ export async function runQuotaAutoPingTick(deps = createDefaultDeps(), state = g
   try {
     const settings = await deps.getSettings();
 
+    // 1. Keep existing Claude/Codex auto-ping logic
     for (const [provider, providerConfig] of Object.entries(C.providers)) {
       const handler = providerHandlers[provider];
       if (!handler) continue;
@@ -280,6 +298,44 @@ export async function runQuotaAutoPingTick(deps = createDefaultDeps(), state = g
           state.failureCache[cacheKey(provider, conn.id)] = Date.now();
           console.warn(`[AutoPing] ${provider}:${conn.id}: ${e.message}`);
         }
+      }
+    }
+
+    // 2. Broaden beyond Claude/Codex: iterate registered providers and ping each
+    const activeConns = await deps.getProviderConnections({ isActive: true });
+    const now = Date.now();
+
+    for (const conn of activeConns) {
+      // Respect per-provider cooldown/locks (skip locked models or whole provider if locked)
+      const isLocked = Object.entries(conn).some(
+        ([key, value]) => key.startsWith("modelLock_") && value && new Date(value).getTime() > now
+      );
+      if (isLocked) continue;
+
+      // Skip already pinged recently (within last 5 minutes)
+      const lastPing = conn.lastTested || conn.lastPingAt;
+      if (lastPing && now - new Date(lastPing).getTime() < 300000) continue;
+
+      try {
+        const proxyCfg = await deps.resolveConnectionProxyConfig(conn.providerSpecificData);
+        const proxyOptions = buildProxyOptions(proxyCfg);
+        const pingRes = await sendGenericPing(conn, proxyOptions, deps);
+
+        await deps.updateProviderConnection(conn.id, {
+          lastTested: new Date().toISOString(),
+          lastPingAt: new Date().toISOString(),
+          latencyMs: pingRes.latencyMs,
+          testStatus: pingRes.ok ? "active" : "unavailable",
+          lastError: pingRes.ok ? null : "Ping failed",
+          lastErrorAt: pingRes.ok ? null : new Date().toISOString(),
+        });
+      } catch (e) {
+        await deps.updateProviderConnection(conn.id, {
+          lastTested: new Date().toISOString(),
+          testStatus: "unavailable",
+          lastError: e.message,
+          lastErrorAt: new Date().toISOString(),
+        });
       }
     }
   } catch (e) {
@@ -305,9 +361,6 @@ export function stopQuotaAutoPing() {
 }
 
 export function configureQuotaAutoPing(settings) {
-  const enabled = Object.values(C.providers).some((providerConfig) =>
-    Object.values(settings?.[providerConfig.settingsKey]?.connections || {}).some(Boolean)
-  );
-  if (enabled) startQuotaAutoPing();
-  else stopQuotaAutoPing();
+  // Now we start it unconditionally since it pings all providers
+  startQuotaAutoPing();
 }
