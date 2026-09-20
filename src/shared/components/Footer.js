@@ -29,12 +29,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 lg:col-span-2">
             <div className="flex items-center gap-2 mb-6">
-              <div className="size-6 text-primary">
-                <svg className="w-full h-full" fill="currentColor" viewBox="0 0 48 48">
+              <div className="flex items-center justify-center size-6 rounded-[6px] bg-gradient-to-br from-brand-500 to-brand-700 text-white">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path
-                    clipRule="evenodd"
-                    d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z"
                     fillRule="evenodd"
+                    d="M5 20V12C5 7.6 8.6 4 12 4C15.4 4 19 7.6 19 12V20H16.5V12C16.5 9 14.5 6.5 12 6.5C9.5 6.5 7.5 9 7.5 12V20H5Z"
+                    clipRule="evenodd"
                   />
                 </svg>
               </div>
@@ -43,7 +43,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-text-muted mb-6 max-w-sm font-light">
-              The unified interface for modern AI infrastructure. Secure, observable, and scalable.
+              One local endpoint for your AI providers. Manage keys and monitor usage.
             </p>
             {/* Social links */}
             <div className="flex gap-4">

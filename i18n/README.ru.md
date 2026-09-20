@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="../images/9router.png?1" alt="Панель управления 9Router" width="800"/>
+  <img src="../images/portway.svg?1" alt="Панель управления 9Router" width="800"/>
   
   # 9Router - Free AI Router
   
@@ -11,9 +11,9 @@
     <img src="../public/providers/openclaw.png" alt="OpenClaw" width="80"/>
   </p>
   
-  [![npm](https://img.shields.io/npm/v/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Downloads](https://img.shields.io/npm/dm/9router.svg)](https://www.npmjs.com/package/9router)
-  [![License](https://img.shields.io/npm/l/9router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
+  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
+  [![License](https://img.shields.io/npm/l/portway.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
   
   [🚀 Быстрый старт](#-quick-start) • [💡 Возможности](#-key-features) • [📖 Установка](#-setup-guide) • [🌐 Сайт](https://9router.com)
 </div>
@@ -70,8 +70,8 @@ Result: Never stop coding, minimal cost
 **1. Глобальная установка:**
 
 ```bash
-npm install -g 9router
-9router
+npm install -g portway
+portway
 ```
 
 🎉 Панель управления откроется на `http://localhost:20128`
@@ -123,7 +123,7 @@ URL по умолчанию:
 [![Настройка 9Router + Claude Code](https://img.youtube.com/vi/raEyZPg5xE0/maxresdefault.jpg)](https://www.youtube.com/watch?v=raEyZPg5xE0)
 
 **🎬 Полное пошаговое руководство:**
-- ✅ Установка и настройка 9Router
+- ✅ Установка и настройка portway
 - ✅ Настройка Claude Sonnet 4.5 БЕСПЛАТНО
 - ✅ Интеграция с Claude Code
 - ✅ Тестирование кода вживую
@@ -481,7 +481,7 @@ Combo: "my-coding-stack"
 
 ---
 
-### 📊 Понимание затрат и оплаты в 9Router
+### 📊 Понимание затрат и оплаты в portway
 
 **Реальность оплаты 9Router:**
 
@@ -949,7 +949,7 @@ Model: cc/claude-opus-4-6
 ```bash
 # Clone and install
 git clone https://github.com/decolua/9router.git
-cd 9router
+cd portway
 npm install
 npm run build
 
@@ -988,7 +988,7 @@ docker run -d \
   --env-file /root/dev/9router/.env \
   -v 9router-data:/app/data \
   -v 9router-usage:/root/.9router \
-  9router
+  portway
 ```
 
 Портативная команда (если вы уже в корне репозитория):
@@ -1000,7 +1000,7 @@ docker run -d \
   --env-file ./.env \
   -v 9router-data:/app/data \
   -v 9router-usage:/root/.9router \
-  9router
+  portway
 ```
 
 Значения по умолчанию контейнера:
@@ -1010,9 +1010,9 @@ docker run -d \
 Полезные команды:
 
 ```bash
-docker logs -f 9router
-docker restart 9router
-docker stop 9router && docker rm 9router
+docker logs -f portway
+docker restart portway
+docker stop 9router && docker rm portway
 ```
 
 ### Переменные окружения
@@ -1109,7 +1109,7 @@ docker stop 9router && docker rm 9router
 - Добавьте комбо: `cc/claude-opus-4-6 → glm/glm-4.7 → if/kimi-k2-thinking`
 
 **OAuth-токен истёк**
-- Автообновление 9Router
+- Автообновление portway
 - Если проблема сохраняется: Панель управления → Провайдеры → Переподключить
 
 **Высокие затраты**

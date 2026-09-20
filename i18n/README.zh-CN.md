@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="../images/9router.png?1" alt="9Router Dashboard" width="800"/>
+  <img src="../images/portway.svg?1" alt="9Router Dashboard" width="800"/>
   
   # 9Router - 免费 AI 路由器
   
@@ -11,9 +11,9 @@
     <img src="../public/providers/openclaw.png" alt="OpenClaw" width="80"/>
   </p>
   
-  [![npm](https://img.shields.io/npm/v/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Downloads](https://img.shields.io/npm/dm/9router.svg)](https://www.npmjs.com/package/9router)
-  [![License](https://img.shields.io/npm/l/9router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
+  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
+  [![License](https://img.shields.io/npm/l/portway.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
   
   [🚀 快速开始](#-quick-start) • [💡 特性](#-key-features) • [📖 设置](#-setup) • [🌐 网站](https://9router.com)
 </div>
@@ -71,8 +71,8 @@
 **1. 全局安装：**
 
 ```bash
-npm install -g 9router
-9router
+npm install -g portway
+portway
 ```
 
 🎉 仪表板将在 `http://localhost:20128` 打开
@@ -947,7 +947,7 @@ Model: cc/claudeus-4-6
 ```bash
 # Clone and install
 git clone https://github.com/decolua/9router.git
-cd 9router
+cd portway
 npm install
 npm run build
 
@@ -985,7 +985,7 @@ docker run -d \
   --env-file /root/dev/9router/.env \
   -v 9router-data:/app/data \
   -v 9router-usage:/root/.9router \
-  9router
+  portway
 ```
 
 便携式命令（如果您已在仓库根目录）：
@@ -1007,9 +1007,9 @@ docker run -d \
 有用命令：
 
 ```bash
-docker logs -f 9router
-docker restart 9router
-docker stop 9router && docker rm 9router
+docker logs -f portway
+docker restart portway
+docker stop 9router && docker rm portway
 ```
 
 ### 环境变量

@@ -1,14 +1,14 @@
 <div align="center">
-  <img src="../images/9router.png?1" alt="Bảng điều khiển 9Router" width="800"/>
+  <img src="../images/portway.svg?1" alt="Bảng điều khiển 9Router" width="800"/>
   
-  # 9Router - Free AI Router & Token Saver
+  # Portway - FREE AI Router & Token Saver
   
   **Không bao giờ ngừng code. Tiết kiệm 20-40% token với RTK + tự động dự phòng sang các mô hình AI MIỄN PHÍ & giá rẻ.**
   
   **Kết nối tất cả công cụ AI Code (Claude Code, Codex, Cursor, Cline, Copilot, Antigravity...) tới 40+ Nhà cung cấp AI & 100+ Mô hình.**
   
-  [![npm](https://img.shields.io/npm/v/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Downloads](https://img.shields.io/npm/dm/9router.svg)](https://www.npmjs.com/package/9router)
+  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
+  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
   [![License](https://github.com/decolua/9router/blob/main/LICENSE)](https://github.com/decolua/9router/blob/main/LICENSE)
   
   [🚀 Bắt đầu nhanh](#-quick-start) • [💡 Tính năng](#-key-features) • [📖 Cài đặt](#-setup-guide) • [🌐 Website](https://9router.com)
@@ -69,8 +69,8 @@ Kết quả: Không bao giờ ngừng code, chi phí tối thiểu + tiết ki�
 **1. Cài đặt toàn cục:**
 
 ```bash
-npm install -g 9router
-9router
+npm install -g portway
+portway
 ```
 
 🎉 Bảng điều khiển (Dashboard) sẽ tự động mở tại `http://localhost:20128`
@@ -123,7 +123,7 @@ URL mặc định:
 [![Thiết lập 9Router + Claude Code](https://img.youtube.com/vi/raEyZPg5xE0/maxresdefault.jpg)](https://www.youtube.com/watch?v=raEyZPg5xE0)
 
 **🎬 Xem hướng dẫn từng đầy đủ:**
-- ✅ Cài đặt & thiết lập 9Router
+- ✅ Cài đặt & thiết lập portway
 - ✅ Cấu hình Claude Sonnet 4.5 MIỄN PHÍ
 - ✅ Tích hợp Claude Code
 - ✅ Thử nghiệm code trực tiếp
@@ -481,7 +481,7 @@ Dịch chuyển liền mạch giữa các định dạng:
 
 ---
 
-### 📊 Hiểu về Chi phí & Thanh toán của 9Router
+### 📊 Hiểu về Chi phí & Thanh toán của portway
 
 **Thực tế Thanh toán 9Router:**
 
@@ -946,7 +946,7 @@ Model: cc/claude-opus-4-6
 ```bash
 # Clone và cài đặt
 git clone https://github.com/decolua/9router.git
-cd 9router
+cd portway
 npm install
 npm run build
 
@@ -985,7 +985,7 @@ docker run -d \
   --env-file /root/dev/9router/.env \
   -v 9router-data:/app/data \
   -v 9router-usage:/root/.9router \
-  9router
+  portway
 ```
 
 Lệnh di động (nếu bạn đã ở gốc kho lưu trữ):
@@ -997,7 +997,7 @@ docker run -d \
   --env-file ./.env \
   -v 9router-data:/app/data \
   -v 9router-usage:/root/.9router \
-  9router
+  portway
 ```
 
 Mặc định container:
@@ -1007,9 +1007,9 @@ Mặc định container:
 Các lệnh hữu ích:
 
 ```bash
-docker logs -f 9router
- restart 9router
-docker stop 9router && docker rm 9router
+docker logs -f portway
+ restart portway
+docker stop 9router && docker rm portway
 ```
 
 ### Biến môi trường
@@ -1106,7 +1106,7 @@ Ghi chú:
 - Thêm combo: `cc/claude-opus-4-6 → glm/glm-4.7 → if/kimi-k2-thinking`
 
 **Token OAuth hết hạn**
-- Tự động làm mới bởi 9Router
+- Tự động làm mới bởi portway
 - Nếu sự cố vẫn tiếp diễn: Bảng điều khiển → Nhà cung cấp → Kết nối lại
 
 **Chi phí cao**

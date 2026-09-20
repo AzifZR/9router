@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="../images/9router.png?1" alt="Painel do 9Router" width="800"/>
+  <img src="../images/portway.svg?1" alt="Painel do 9Router" width="800"/>
   
   # 9Router — roteador de IA GRATUITO e economizador de tokens
   
@@ -7,11 +7,11 @@
   
   **Conecte todas as ferramentas de código de IA (Claude Code, Cursor, Antigravity, Copilot, Codex, Gemini, OpenCode, Cline, OpenClaw...) a mais de 40 provedores de IA e mais de 100 modelos.**
   
-  [![npm](https://img.shields.io/npm/v/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Downloads](https://img.shields.io/npm/dm/9router.svg)](https://www.npmjs.com/package/9router)
+  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
+  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
   [![Docker Pulls](https://img.shields.io/docker/pulls/decolua/9router.svg?logo=docker&label=Docker%20pulls)](https://hub.docker.com/r/decolua/9router)
   [![GHCR](https://img.shields.io/badge/GHCR-decolua%2F9router-blue?logo=github)](https://github.com/decolua/9router/pkgs/container/9router)
-  [![Licença](https://img.shields.io/npm/l/9router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  [![Licença](https://img.shields.io/npm/l/portway.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
 
 <a href="https://trendshift.io/repositories/22628" target="_blank"><img src="https://trendshift.io/api/badge/repositories/22628" alt="decolua%2F9router | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
@@ -76,8 +76,8 @@ Resultado: programe sem interrupções, com custo mínimo e economia de 20% a 40
 **1. Instale globalmente:**
 
 ```bash
-npm install -g 9router
-9router
+npm install -g portway
+portway
 ```
 
 🎉 O painel abre em `http://localhost:20128`
@@ -709,7 +709,7 @@ Tradução perfeita entre formatos:
 
 ---
 
-### 📊 Compreendendo os custos e faturamento do 9Router
+### 📊 Compreendendo os custos e faturamento do portway
 
 **Como funciona o faturamento do 9Router:**
 
@@ -1209,7 +1209,7 @@ Model: cc/claude-opus-4-7
 ```bash
 # Clonar e instalar
 git clone https://github.com/decolua/9router.git
-cd 9router
+cd portway
 npm install
 npm run build
 
@@ -1262,7 +1262,7 @@ git clone https://github.com/decolua/9router.git
 cd 9router/app
 docker build -t 9router .
 docker run -d --name 9router -p 20128:20128 \
-  -v "$HOME/.9router:/app/data" -e DATA_DIR=/app/data 9router
+  -v "$HOME/.9router:/app/data" -e DATA_DIR=/app/data portway
 ```
 
 **Padrões do contêiner:**
@@ -1273,9 +1273,9 @@ docker run -d --name 9router -p 20128:20128 \
 **Comandos úteis:**
 
 ```bash
-docker logs -f 9router
-docker restart 9router
-docker stop 9router && docker rm 9router
+docker logs -f portway
+docker restart portway
+docker stop 9router && docker rm portway
 docker pull decolua/9router:latest   # atualizar para a versão mais recente
 ```
 
@@ -1412,7 +1412,7 @@ Notas:
 
 **O token OAuth expirou**
 
-- Atualizado automaticamente pelo 9Router
+- Atualizado automaticamente pelo portway
 - Se os problemas persistirem: Painel → Provedor → Reconectar
 
 **Custos elevados**

@@ -17,10 +17,11 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "9Router - AI Infrastructure Management",
-  description: "One endpoint for all your AI providers. Manage keys, monitor usage, and scale effortlessly.",
+  title: "portway - local AI gateway",
+  description: "One local endpoint for your AI providers. Manage keys and monitor usage.",
   icons: {
     icon: "/favicon.svg",
+    apple: "/icons/icon-192.svg",
   },
 };
 

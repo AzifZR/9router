@@ -1,9 +1,9 @@
 {
-  "name": "9router",
+  "name": "portway",
   "version": "0.5.81",
-  "description": "9Router CLI - Start and manage 9Router server",
+  "description": "Portway CLI - Start and manage Portway server",
   "bin": {
-    "9router": "./cli.js"
+    "portway": "./cli.js"
   },
   "files": [
     "cli.js",
@@ -34,7 +34,7 @@
     "node": ">=18.0.0"
   },
   "keywords": [
-    "9router",
+    "portway",
     "cli",
     "proxy",
     "ai",

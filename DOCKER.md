@@ -1,6 +1,6 @@
 # Docker
 
-Run 9Router in a container. Published image: [`decolua/9router`](https://hub.docker.com/r/decolua/9router) — multi-platform `linux/amd64` + `linux/arm64`.
+Run 9Router in a container. Published image: [`decolua/portway`](https://hub.docker.com/r/decolua/portway) — multi-platform `linux/amd64` + `linux/arm64`.
 
 ---
 
@@ -13,8 +13,8 @@ docker run -d \
   -p 20128:20128 \
   -v "$HOME/.9router:/app/data" \
   -e DATA_DIR=/app/data \
-  --name 9router \
-  decolua/9router:latest
+  --name portway \
+  decolua/portway:latest
 ```
 
 App listens on port `20128`. Open: http://localhost:20128
@@ -22,10 +22,10 @@ App listens on port `20128`. Open: http://localhost:20128
 ## Manage container
 
 ```bash
-docker logs -f 9router        # view logs
-docker stop 9router           # stop
-docker start 9router          # start again
-docker rm -f 9router          # remove
+docker logs -f portway        # view logs
+docker stop portway           # stop
+docker start portway          # start again
+docker rm -f portway          # remove
 ```
 
 ## Data persistence
@@ -60,8 +60,8 @@ docker run -d \
   -e PORT=20128 \
   -e HOSTNAME=0.0.0.0 \
   -e DEBUG=true \
-  --name 9router \
-  decolua/9router:latest
+  --name portway \
+  decolua/portway:latest
 ```
 
 ## Optional Headroom sidecar
@@ -70,8 +70,8 @@ The 9Router image does not bundle Python or Headroom. To use Headroom in Docker,
 
 ```yaml
 services:
-  9router:
-    image: decolua/9router:latest
+  portway:
+    image: decolua/portway:latest
     ports:
       - "20128:20128"
     volumes:
@@ -95,8 +95,8 @@ If Headroom runs on the Docker host instead of as a sidecar, use `http://host.do
 ## Update to latest
 
 ```bash
-docker pull decolua/9router:latest
-docker rm -f 9router
+docker pull decolua/portway:latest
+docker rm -f portway
 # re-run the quick start command
 ```
 
@@ -107,7 +107,7 @@ docker rm -f 9router
 ## Build image locally (test)
 
 ```bash
-cd app && docker build -t 9router .
+cd app && docker build -t portway .
 
 docker run --rm -p 20128:20128 \
   -v "$HOME/.9router:/app/data" \
@@ -118,8 +118,8 @@ docker run --rm -p 20128:20128 \
 ## Publish (automatic via CI)
 
 Push a git tag `v*` → GitHub Actions builds multi-platform (amd64+arm64) and pushes to:
-- `ghcr.io/decolua/9router:v{version}` + `:latest`
-- `decolua/9router:v{version}` + `:latest`
+- `ghcr.io/decolua/portway:v{version}` + `:latest`
+- `decolua/portway:v{version}` + `:latest`
 
 ```bash
 # Use scripts/release.js (recommended)

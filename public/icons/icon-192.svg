@@ -1,4 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="24" fill="#0a0a0a"/>
-  <text x="96" y="120" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#ffffff" text-anchor="middle">9R</text>
+  <defs>
+    <linearGradient id="portway-g" x1="0" y1="0" x2="192" y2="192" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A8A6E"/>
+      <stop offset="1" stop-color="#0E4637"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#portway-g)"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M48 150V93C48 64.8 69.6 42 96 42C122.4 42 144 64.8 144 93V150H126V93C126 75 112.5 60 96 60C79.5 60 66 75 66 93V150H48Z" fill="#ffffff"/>
+  <rect x="87.6" y="96" width="16.8" height="54" rx="8.4" fill="#ffffff" opacity="0.85"/>
 </svg>

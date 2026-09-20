@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="../images/9router.png?1" alt="9Router Dashboard" width="800"/>
+  <img src="../images/portway.svg?1" alt="9Router Dashboard" width="800"/>
 
   # 9Router - 無料 AI ルーター
 
@@ -7,9 +7,9 @@
 
   **すべてのAIコーディングツール（Claude Code、Cursor、Antigravity、Copilot、Codex、Gemini、OpenCode、Cline、OpenClaw...）を40以上のAIプロバイダーと100以上のモデルに接続。**
 
-  [![npm](https://img.shields.io/npm/v/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Downloads](https://img.shields.io/npm/dm/9router.svg)](https://www.npmjs.com/package/9router)
-  [![License](https://img.shields.io/npm/l/9router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
+  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
+  [![License](https://img.shields.io/npm/l/portway.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
 
   [🚀 クイックスタート](#-クイックスタート) • [💡 機能](#-主な機能) • [📖 セットアップ](#-セットアップガイド) • [🌐 ウェブサイト](https://9router.com)
 
@@ -68,8 +68,8 @@
 **1. グローバルインストール：**
 
 ```bash
-npm install -g 9router
-9router
+npm install -g portway
+portway
 ```
 
 🎉 ダッシュボードが `http://localhost:20128` で開きます
@@ -946,7 +946,7 @@ Model: cc/claude-opus-4-6
 ```bash
 # クローンとインストール
 git clone https://github.com/decolua/9router.git
-cd 9router
+cd portway
 npm install
 npm run build
 
@@ -985,7 +985,7 @@ docker run -d \
   --env-file /root/dev/9router/.env \
   -v 9router-data:/app/data \
   -v 9router-usage:/root/.9router \
-  9router
+  portway
 ```
 
 ポータブルコマンド（リポジトリルートにいる場合）：
@@ -997,7 +997,7 @@ docker run -d \
   --env-file ./.env \
   -v 9router-data:/app/data \
   -v 9router-usage:/root/.9router \
-  9router
+  portway
 ```
 
 コンテナのデフォルト：
@@ -1007,9 +1007,9 @@ docker run -d \
 便利なコマンド：
 
 ```bash
-docker logs -f 9router
-docker restart 9router
-docker stop 9router && docker rm 9router
+docker logs -f portway
+docker restart portway
+docker stop 9router && docker rm portway
 ```
 
 ### 環境変数

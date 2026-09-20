@@ -34,9 +34,9 @@ function cleanupLegacySystray({ silent = false } = {}) {
     if (fs.existsSync(dir)) {
       try {
         fs.rmSync(dir, { recursive: true, force: true });
-        if (!silent) console.log(`[9router][runtime] removed legacy systray: ${dir}`);
+        if (!silent) console.log(`[portway][runtime] removed legacy systray: ${dir}`);
       } catch (e) {
-        if (!silent) console.warn(`[9router][runtime] failed to remove ${dir}: ${e.message}`);
+        if (!silent) console.warn(`[portway][runtime] failed to remove ${dir}: ${e.message}`);
       }
     }
   }
@@ -53,7 +53,7 @@ function chmodSystrayBin({ silent = false } = {}) {
   try {
     fs.chmodSync(binPath, 0o755);
   } catch (e) {
-    if (!silent) console.warn(`[9router][runtime] chmod tray bin failed: ${e.message}`);
+    if (!silent) console.warn(`[portway][runtime] chmod tray bin failed: ${e.message}`);
   }
 }
 

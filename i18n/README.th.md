@@ -1,7 +1,7 @@
 นี่คือเอกสารแปลภาษาไทยของไฟล์ Markdown ต้นฉบับ โดยรักษาโครงสร้างและซินแท็กซ์ทางเทคนิคทั้งหมดไว้เหมือนเดิม
 
 <div align="center">
-  <img src="../images/9router.png?1" alt="แดชบอร์ด 9Router" width="800"/>
+  <img src="../images/portway.svg?1" alt="แดชบอร์ด 9Router" width="800"/>
   
   # 9Router - Free AI Router
   
@@ -13,9 +13,9 @@
     <img src="../public/providers/openclaw.png" alt="OpenClaw" width="80"/>
   </p>
   
-  [![npm](https://img.shields.io/npm/v/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Downloads](https://img.shields.io/npm/dm/9router.svg)](https://www.npmjs.com/package/9router)
-  [![License](https://img.shields.io/npm/l/9router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
+  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
+  [![License](https://img.shields.io/npm/l/portway.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
   
   [🚀 เริ่มต้นใช้งาน](#-quick-start) • [💡 ฟีเจอร์](#-key-features) • [📖 การตั้งค่า](#-setup-guide) • [🌐 เว็บไซต์](https://9router.com)
 </div>
@@ -74,8 +74,8 @@
 **1. ติดตั้งแบบ Global:**
 
 ```bash
-npm install -g 9router
-9router
+npm install -g portway
+portway
 ```
 
 🎉 เปิดแดชบอร์ดที่ `http://localhost:20128`
@@ -635,7 +635,7 @@ Combo: "openclaw-free"
 - เพิ่ม combo: `cc/claude-opus-4-6 → glm/glm-5.1 → kr/claude-sonnet-4.5`
 
 **OAuth Token หมดอายุ**
-- รีเฟรชอัตโนมัติโดย 9Router
+- รีเฟรชอัตโนมัติโดย portway
 - ถ้าปัญหายังคงอยู่: แดชบอร์ด → ผู้ให้บริการ → เชื่อมต่อใหม่
 
 **ค่าใช้จ่ายสูง**

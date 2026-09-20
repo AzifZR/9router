@@ -1,17 +1,17 @@
 <div align="center">
-  <img src="./images/9router.png?1" alt="9Router Dashboard" width="800"/>
+  <img src="./images/portway.svg?1" alt="9Router Dashboard" width="800"/>
   
-  # 9Router - FREE AI Router & Token Saver
+  # Portway - FREE AI Router & Token Saver
   
   **Never stop coding. Save 20-40% tokens with RTK + auto-fallback to FREE & cheap AI models.**
   
   **Connect All AI Code Tools (Claude Code, Cursor, Antigravity, Copilot, Codex, Gemini, OpenCode, Cline, OpenClaw...) to 40+ AI Providers & 100+ Models.**
   
-  [![npm](https://img.shields.io/npm/v/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Downloads](https://img.shields.io/npm/dm/9router.svg)](https://www.npmjs.com/package/9router)
+  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
+  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
   [![Docker Pulls](https://img.shields.io/docker/pulls/decolua/9router.svg?logo=docker&label=Docker%20pulls)](https://hub.docker.com/r/decolua/9router)
   [![GHCR](https://img.shields.io/badge/GHCR-decolua%2F9router-blue?logo=github)](https://github.com/decolua/9router/pkgs/container/9router)
-  [![License](https://img.shields.io/npm/l/9router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  [![License](https://img.shields.io/npm/l/portway.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
 
 <a href="https://trendshift.io/repositories/22628" target="_blank"><img src="https://trendshift.io/api/badge/repositories/22628" alt="decolua%2F9router | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
@@ -76,8 +76,8 @@ Result: Never stop coding, minimal cost + 20-40% token savings via RTK
 **1. Install globally:**
 
 ```bash
-npm install -g 9router
-9router
+npm install -g portway
+portway
 ```
 
 🎉 Dashboard opens at `http://localhost:20128`
@@ -1210,7 +1210,7 @@ Model: cc/claude-opus-4-7
 ```bash
 # Clone and install
 git clone https://github.com/decolua/9router.git
-cd 9router
+cd portway
 npm install
 npm run build
 
@@ -1263,7 +1263,7 @@ git clone https://github.com/decolua/9router.git
 cd 9router/app
 docker build -t 9router .
 docker run -d --name 9router -p 20128:20128 \
-  -v "$HOME/.9router:/app/data" -e DATA_DIR=/app/data 9router
+  -v "$HOME/.9router:/app/data" -e DATA_DIR=/app/data portway
 ```
 
 **Container defaults:**
@@ -1274,9 +1274,9 @@ docker run -d --name 9router -p 20128:20128 \
 **Useful commands:**
 
 ```bash
-docker logs -f 9router
-docker restart 9router
-docker stop 9router && docker rm 9router
+docker logs -f portway
+docker restart portway
+docker stop 9router && docker rm portway
 docker pull decolua/9router:latest   # update to latest
 ```
 
@@ -1413,7 +1413,7 @@ Notes:
 
 **OAuth token expired**
 
-- Auto-refreshed by 9Router
+- Auto-refreshed by portway
 - If issues persist: Dashboard → Provider → Reconnect
 
 **High costs**

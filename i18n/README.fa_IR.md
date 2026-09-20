@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./images/9router.png?1" alt="داشبورد 9Router" width="800"/>
+  <img src="./images/portway.svg?1" alt="داشبورد 9Router" width="800"/>
   
   # 9Router - مسیریاب رایگان هوش مصنوعی و ذخیره‌ساز توکن
   
@@ -7,11 +7,11 @@
   
   **همه ابزارهای کدنویسی مبتنی بر هوش مصنوعی (Claude Code، Cursor، Antigravity، Copilot، Codex، Gemini، OpenCode، Cline، OpenClaw...) را به بیش از ۴۰ ارائه‌دهنده و ۱۰۰+ مدل متصل کنید.**
   
-  [![npm](https://img.shields.io/npm/v/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Downloads](https://img.shields.io/npm/dm/9router.svg)](https://www.npmjs.com/package/9router)
+  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
+  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
   [![Docker Pulls](https://img.shields.io/docker/pulls/decolua/9router.svg?logo=docker&label=Docker%20pulls)](https://hub.docker.com/r/decolua/9router)
   [![GHCR](https://img.shields.io/badge/GHCR-decolua%2F9router-blue?logo=github)](https://github.com/decolua/9router/pkgs/container/9router)
-  [![License](https://img.shields.io/npm/l/9router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  [![License](https://img.shields.io/npm/l/portway.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
 
 <a href="https://trendshift.io/repositories/22628" target="_blank"><img src="https://trendshift.io/api/badge/repositories/22628" alt="decolua%2F9router | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
@@ -76,8 +76,8 @@
 **۱. نصب سراسری:**
 
 ```bash
-npm install -g 9router
-9router
+npm install -g portway
+portway
 ```
 
 🎉 داشبورد در آدرس `http://localhost:20128` باز می‌شود
@@ -626,7 +626,7 @@ http://host.docker.internal:8787
 
 ---
 
-### 📊 درک هزینه‌ها و صورتحساب 9Router
+### 📊 درک هزینه‌ها و صورتحساب portway
 
 **واقعیت صورتحساب 9Router:**
 
@@ -1126,7 +1126,7 @@ codex "your prompt"
 ```bash
 # کلون و نصب
 git clone https://github.com/decolua/9router.git
-cd 9router
+cd portway
 npm install
 npm run build
 
@@ -1179,7 +1179,7 @@ git clone https://github.com/decolua/9router.git
 cd 9router/app
 docker build -t 9router .
 docker run -d --name 9router -p 20128:20128 \
-  -v "$HOME/.9router:/app/data" -e DATA_DIR=/app/data 9router
+  -v "$HOME/.9router:/app/data" -e DATA_DIR=/app/data portway
 ```
 
 **پیش‌فرض‌های کانتینر:**
@@ -1190,9 +1190,9 @@ docker run -d --name 9router -p 20128:20128 \
 **دستورات مفید:**
 
 ```bash
-docker logs -f 9router
-docker restart 9router
-docker stop 9router && docker rm 9router
+docker logs -f portway
+docker restart portway
+docker stop 9router && docker rm portway
 docker pull decolua/9router:latest   # به‌روزرسانی به آخرین نسخه
 ```
 

@@ -41,7 +41,7 @@ function ensureRuntimeDir() {
       name: "9router-runtime",
       version: "1.0.0",
       private: true,
-      description: "User-writable runtime deps for 9router (better-sqlite3 native binary)",
+      description: "User-writable runtime deps for portway (better-sqlite3 native binary)",
     }, null, 2));
   }
   return dir;

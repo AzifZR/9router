@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="../images/9router.png?1" alt="9Router Dashboard" width="800"/>
+  <img src="../images/portway.svg?1" alt="9Router Dashboard" width="800"/>
 
   # 9Router - Router AI Gratis
 
@@ -7,9 +7,9 @@
 
   **Hubungkan semua tool AI coding (Claude Code, Cursor, Antigravity, Copilot, Codex, Gemini, OpenCode, Cline, OpenClaw...) ke 40+ provider AI dan 100+ model.**
 
-  [![npm](https://img.shields.io/npm/v/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Downloads](https://img.shields.io/npm/dm/9router.svg)](https://www.npmjs.com/package/9router)
-  [![License](https://img.shields.io/npm/l/9router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
+  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
+  [![License](https://img.shields.io/npm/l/portway.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
 
   [🚀 Mulai Cepat](#-mulai-cepat) • [💡 Fitur](#-fitur-utama) • [📖 Setup](#-panduan-setup) • [🌐 Website](https://9router.com)
 
@@ -68,8 +68,8 @@ Hasil: ngoding tanpa berhenti, biaya minimum
 **1. Install secara global:**
 
 ```bash
-npm install -g 9router
-9router
+npm install -g portway
+portway
 ```
 
 🎉 Dashboard terbuka di `http://localhost:20128`
@@ -121,7 +121,7 @@ URL default:
 [![9Router + Claude Code Setup](https://img.youtube.com/vi/raEyZPg5xE0/maxresdefault.jpg)](https://www.youtube.com/watch?v=raEyZPg5xE0)
 
 **🎬 Tonton tutorial langkah demi langkah:**
-- ✅ Install dan setup 9Router
+- ✅ Install dan setup portway
 - ✅ Konfigurasi Claude Sonnet 4.5 gratis
 - ✅ Integrasi dengan Claude Code
 - ✅ Demo live coding
@@ -478,7 +478,7 @@ Konversi mulus antar format:
 
 ---
 
-### 📊 Tentang Biaya dan Penagihan 9Router
+### 📊 Tentang Biaya dan Penagihan portway
 
 **Fakta soal penagihan 9Router:**
 
@@ -887,8 +887,8 @@ Dashboard: `http://localhost:20128/dashboard`
 <summary><b>VPS / Cloud</b></summary>
 
 ```bash
-npm install -g 9router
-PORT=20128 HOSTNAME=0.0.0.0 BASE_URL=https://your-domain.com 9router
+npm install -g portway
+PORT=20128 HOSTNAME=0.0.0.0 BASE_URL=https://your-domain.com portway
 ```
 
 Disarankan menaruhnya di belakang reverse proxy (Nginx/Caddy) dengan HTTPS, dan membatasi akses hanya untuk dirimu sendiri.
@@ -946,6 +946,6 @@ MIT License — lihat [LICENSE](https://github.com/decolua/9router/blob/main/LIC
 
 **Kalau 9Router membantumu, kasih ⭐ di [GitHub](https://github.com/decolua/9router)!**
 
-[🌐 Website](https://9router.com) • [📦 npm](https://www.npmjs.com/package/9router) • [🐛 Laporkan Bug](https://github.com/decolua/9router/issues)
+[🌐 Website](https://9router.com) • [📦 npm](https://www.npmjs.com/package/portway) • [🐛 Laporkan Bug](https://github.com/decolua/9router/issues)
 
 </div>
