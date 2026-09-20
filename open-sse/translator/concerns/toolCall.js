@@ -23,6 +23,31 @@ function sanitizeToolId(id) {
   return sanitized.length > 0 ? sanitized : null;
 }
 
+// Proxy-level repair for malformed tool_call.arguments JSON (cheap models).
+// FAIL-OPEN: never throws — returns null when unrepairable.
+export function repairToolCallArguments(raw) {
+  try {
+    if (typeof raw !== "string") return null;
+    try {
+      JSON.parse(raw);
+      return raw;
+    } catch {
+      // fall through to repairs
+    }
+    let repaired = raw.trim();
+    // 1) strip trailing commas (outside quoted strings)
+    repaired = repaired.replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|(,\s*([}\]]))/g, (m, _a, p2) => (p2 ? p2 : m));
+    // 2) single-quoted strings -> double-quoted
+    repaired = repaired.replace(/'((?:\\.|[^'\\])*)'/g, (_, inner) => `"${inner.replace(/"/g, '\\"').replace(/\\'/g, "'")}"`);
+    // 3) quote unquoted keys (outside double-quoted strings)
+    repaired = repaired.replace(/"(?:\\.|[^"\\])*"|([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$-]*)\s*:/g, (m, prefix, key) => (key ? `${prefix}"${key}":` : m));
+    JSON.parse(repaired);
+    return repaired;
+  } catch {
+    return null;
+  }
+}
+
 // Ensure all tool_calls have valid id field and arguments is string (some providers require it)
 export function ensureToolCallIds(body) {
   if (!body.messages || !Array.isArray(body.messages)) return body;
@@ -30,6 +55,7 @@ export function ensureToolCallIds(body) {
   for (let i = 0; i < body.messages.length; i++) {
     const msg = body.messages[i];
     if (msg.role === "assistant" && msg.tool_calls && Array.isArray(msg.tool_calls)) {
+      const kept = [];
       for (let j = 0; j < msg.tool_calls.length; j++) {
         const tc = msg.tool_calls[j];
         // Validate or regenerate ID for Anthropic compatibility
@@ -42,9 +68,27 @@ export function ensureToolCallIds(body) {
         }
         // Ensure arguments is JSON string, not object
         if (tc.function?.arguments && typeof tc.function.arguments !== "string") {
-          tc.function.arguments = JSON.stringify(tc.function.arguments);
+          try {
+            tc.function.arguments = JSON.stringify(tc.function.arguments);
+          } catch {
+            // fail-open: drop unstringifiable
+            continue;
+          }
+        }
+        if (typeof tc.function?.arguments === "string") {
+          const repaired = repairToolCallArguments(tc.function.arguments);
+          if (repaired !== null) {
+            tc.function.arguments = repaired;
+            kept.push(tc);
+          } else {
+            // fail-open: drop unrepairable tool_call
+            continue;
+          }
+        } else {
+          kept.push(tc);
         }
       }
+      msg.tool_calls = kept;
     }
 
     // Validate tool_call_id in tool messages (role: "tool")
