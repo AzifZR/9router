@@ -154,5 +154,28 @@ describe("Self-Healing Virtual Model Aliases", () => {
       expect(res.model).toBe("google/gemini-1.5-flash"); // defaultFallback
       expect(logger.warn).toHaveBeenCalledWith("ALIAS", expect.stringContaining("Health store unreadable"));
     });
+
+    it("handles wrapped connections object and garbage object without throwing", async () => {
+      // Wrapped { connections: [...] }
+      const wrapped = { connections: [{ provider: "google", isActive: true, testStatus: "active" }] };
+      const res1 = await resolvePortwayAlias("portway/cheap", { log: logger, connections: wrapped });
+      expect(res1.model).toBe("google/gemini-1.5-flash");
+
+      // Garbage object
+      const garbage = { foo: "bar" };
+      const res2 = await resolvePortwayAlias("portway/cheap", { log: logger, connections: garbage });
+      expect(res2.model).toBe("google/gemini-1.5-flash"); // static fallback
+    });
+
+    it("handles throwing store or error in resolver without throwing", async () => {
+      const throwingResolver = await resolvePortwayAlias("portway/cheap", {
+        log: logger,
+        get connections() {
+          throw new Error("Store read exploded");
+        }
+      });
+      expect(throwingResolver.model).toBe("google/gemini-1.5-flash");
+      expect(logger.warn).toHaveBeenCalledWith("ALIAS", expect.stringContaining("resolvePortwayAlias failed"));
+    });
   });
 });

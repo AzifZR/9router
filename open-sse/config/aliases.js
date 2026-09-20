@@ -99,45 +99,58 @@ export async function resolvePortwayAlias(model, options = {}) {
 
   const candidates = aliasDef.candidates || [];
 
-  let connections = options.connections;
-  if (options.forceStoreError) {
-    connections = await fetchHealthConnections(options.log, true);
-  } else if (connections === undefined && !options.isModelLocked) {
-    connections = await fetchHealthConnections(options.log);
-  }
-
-  if (!connections && !options.isModelLocked) {
-    return { model: aliasDef.defaultFallback || candidates[0] || model };
-  }
-
-  const healthyCandidates = candidates.filter((cand) => {
-    const slash = cand.indexOf("/");
-    const provider = slash > 0 ? cand.slice(0, slash) : cand;
-    const modelId = slash > 0 ? cand.slice(slash + 1) : "";
-
-    if (typeof options.isModelLocked === "function") {
-      return !options.isModelLocked(provider, modelId);
+  try {
+    let connections = options.connections;
+    if (options.forceStoreError) {
+      connections = await fetchHealthConnections(options.log, true);
+    } else if (connections === undefined && !options.isModelLocked) {
+      connections = await fetchHealthConnections(options.log);
     }
 
-    const resolvedProvider = resolveProviderAlias(provider);
-    const matchingConns = (connections || []).filter((conn) => {
-      if (!conn) return false;
-      const cp = conn.provider;
-      const cr = resolveProviderAlias(cp);
-      return cp === provider || cp === resolvedProvider || cr === provider || cr === resolvedProvider;
+    let list = Array.isArray(connections) ? connections : (connections?.connections ?? connections?.data ?? []);
+    if (connections !== undefined && connections !== null && !Array.isArray(connections) && !connections.connections && !connections.data) {
+      // It's some unknown object type, treat as store-down
+      list = null;
+    }
+
+    if (!list && !options.isModelLocked) {
+      return { model: aliasDef.defaultFallback || candidates[0] || model };
+    }
+
+    const healthyCandidates = candidates.filter((cand) => {
+      const slash = cand.indexOf("/");
+      const provider = slash > 0 ? cand.slice(0, slash) : cand;
+      const modelId = slash > 0 ? cand.slice(slash + 1) : "";
+
+      if (typeof options.isModelLocked === "function") {
+        return !options.isModelLocked(provider, modelId);
+      }
+
+      const resolvedProvider = resolveProviderAlias(provider);
+      const matchingConns = (list || []).filter((conn) => {
+        if (!conn) return false;
+        const cp = conn.provider;
+        const cr = resolveProviderAlias(cp);
+        return cp === provider || cp === resolvedProvider || cr === provider || cr === resolvedProvider;
+      });
+
+      if (matchingConns.length === 0) return false;
+      return matchingConns.some((conn) => isConnectionHealthyForModel(conn, modelId));
     });
 
-    if (matchingConns.length === 0) return false;
-    return matchingConns.some((conn) => isConnectionHealthyForModel(conn, modelId));
-  });
+    if (healthyCandidates.length > 0) {
+      return { model: healthyCandidates[0] };
+    } else if (aliasDef.defaultFallback) {
+      return { model: aliasDef.defaultFallback };
+    } else if (candidates.length > 0) {
+      return { model: candidates[0] };
+    }
 
-  if (healthyCandidates.length > 0) {
-    return { model: healthyCandidates[0] };
-  } else if (aliasDef.defaultFallback) {
-    return { model: aliasDef.defaultFallback };
-  } else if (candidates.length > 0) {
-    return { model: candidates[0] };
+    return { model };
+  } catch (err) {
+    if (options.log && typeof options.log.warn === "function") {
+      options.log.warn("ALIAS", `resolvePortwayAlias failed: ${err?.message}`);
+    }
+    return { model: aliasDef.defaultFallback || candidates[0] || model };
   }
-
-  return { model };
 }

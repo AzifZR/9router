@@ -88,13 +88,18 @@ export async function handleChat(request, clientRawRequest = null) {
 
   // Early virtual alias expansion (portway/* aliases)
   if (typeof modelStr === "string" && modelStr.startsWith("portway/")) {
-    const aliasResult = await resolvePortwayAlias(modelStr, { log });
-    if (aliasResult?.error400) {
-      return errorResponse(HTTP_STATUS.BAD_REQUEST, aliasResult.error400);
-    }
-    if (aliasResult?.model) {
-      modelStr = aliasResult.model;
-      body.model = modelStr;
+    try {
+      const aliasResult = await resolvePortwayAlias(modelStr, { log });
+      if (aliasResult?.error400) {
+        return errorResponse(HTTP_STATUS.BAD_REQUEST, aliasResult.error400);
+      }
+      if (aliasResult?.model) {
+        modelStr = aliasResult.model;
+        body.model = modelStr;
+      }
+    } catch (err) {
+      log.warn("ALIAS", `Early expansion failed for ${modelStr}: ${err?.message}`);
+      // Fail-open: continue with original modelStr
     }
   }
 
