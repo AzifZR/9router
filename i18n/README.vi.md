@@ -7,8 +7,8 @@
   
   **Kết nối tất cả công cụ AI Code (Claude Code, Codex, Cursor, Cline, Copilot, Antigravity...) tới 40+ Nhà cung cấp AI & 100+ Mô hình.**
   
-  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
-  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
+  [![npm](https://img.shields.io/npm/v/portway-router.svg)](https://www.npmjs.com/package/portway-router)
+  [![Downloads](https://img.shields.io/npm/dm/portway-router.svg)](https://www.npmjs.com/package/portway-router)
   [![License](https://github.com/decolua/9router/blob/main/LICENSE)](https://github.com/decolua/9router/blob/main/LICENSE)
   
   [🚀 Bắt đầu nhanh](#-quick-start) • [💡 Tính năng](#-key-features) • [📖 Cài đặt](#-setup-guide) • [🌐 Website](https://9router.com)
@@ -69,7 +69,7 @@ Kết quả: Không bao giờ ngừng code, chi phí tối thiểu + tiết ki�
 **1. Cài đặt toàn cục:**
 
 ```bash
-npm install -g portway
+npm install -g portway-router
 portway
 ```
 

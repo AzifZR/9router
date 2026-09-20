@@ -40,11 +40,11 @@
 **Option 1 — npm (recommended for desktop):**
 
 ```bash
-npm install -g 9router
-9router
+npm install -g portway-router
+portway
 
 # Or run directly with npx
-npx 9router
+npx portway-router
 ```
 
 **Option 2 — Docker (server/VPS):**

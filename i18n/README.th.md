@@ -13,9 +13,9 @@
     <img src="../public/providers/openclaw.png" alt="OpenClaw" width="80"/>
   </p>
   
-  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
-  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
-  [![License](https://img.shields.io/npm/l/portway.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  [![npm](https://img.shields.io/npm/v/portway-router.svg)](https://www.npmjs.com/package/portway-router)
+  [![Downloads](https://img.shields.io/npm/dm/portway-router.svg)](https://www.npmjs.com/package/portway-router)
+  [![License](https://img.shields.io/npm/l/portway-router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
   
   [🚀 เริ่มต้นใช้งาน](#-quick-start) • [💡 ฟีเจอร์](#-key-features) • [📖 การตั้งค่า](#-setup-guide) • [🌐 เว็บไซต์](https://9router.com)
 </div>
@@ -74,7 +74,7 @@
 **1. ติดตั้งแบบ Global:**
 
 ```bash
-npm install -g portway
+npm install -g portway-router
 portway
 ```
 

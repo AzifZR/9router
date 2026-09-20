@@ -7,9 +7,9 @@
 
   **すべてのAIコーディングツール（Claude Code、Cursor、Antigravity、Copilot、Codex、Gemini、OpenCode、Cline、OpenClaw...）を40以上のAIプロバイダーと100以上のモデルに接続。**
 
-  [![npm](https://img.shields.io/npm/v/portway.svg)](https://www.npmjs.com/package/portway)
-  [![Downloads](https://img.shields.io/npm/dm/portway.svg)](https://www.npmjs.com/package/portway)
-  [![License](https://img.shields.io/npm/l/portway.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  [![npm](https://img.shields.io/npm/v/portway-router.svg)](https://www.npmjs.com/package/portway-router)
+  [![Downloads](https://img.shields.io/npm/dm/portway-router.svg)](https://www.npmjs.com/package/portway-router)
+  [![License](https://img.shields.io/npm/l/portway-router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
 
   [🚀 クイックスタート](#-クイックスタート) • [💡 機能](#-主な機能) • [📖 セットアップ](#-セットアップガイド) • [🌐 ウェブサイト](https://9router.com)
 
@@ -68,7 +68,7 @@
 **1. グローバルインストール：**
 
 ```bash
-npm install -g portway
+npm install -g portway-router
 portway
 ```
 

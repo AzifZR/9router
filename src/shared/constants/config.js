@@ -15,9 +15,9 @@ export const GITHUB_CONFIG = {
 
 // Updater configuration
 export const UPDATER_CONFIG = {
-  npmPackageName: "portway",
-  installCmd: "npm i -g portway",
-  installCmdLatest: "npm i -g portway@latest --prefer-online",
+  npmPackageName: "portway-router",
+  installCmd: "npm i -g portway-router",
+  installCmdLatest: "npm i -g portway-router@latest --prefer-online",
   shutdownCountdownSec: 3,
   exitDelayMs: 500,
   statusPort: 20129,

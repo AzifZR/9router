@@ -1,5 +1,5 @@
 {
-  "name": "portway",
+  "name": "portway-router",
   "version": "0.5.81",
   "description": "Portway CLI - Start and manage Portway server",
   "bin": {
