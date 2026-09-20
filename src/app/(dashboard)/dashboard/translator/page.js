@@ -5,7 +5,28 @@ import { Card, Button } from "@/shared/components";
 import { useCopyToClipboard } from "@/shared/hooks/useCopyToClipboard";
 import dynamic from "next/dynamic";
 
-const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+// Skeleton matching the 400px vs-dark editor panel (same size + dark code
+// background, since the editor always uses the vs-dark theme). Shown only
+// while the monaco chunk loads; the bordered wrapper below stays identical.
+function EditorSkeleton() {
+  const widths = [92, 78, 85, 64, 88, 72, 95, 58, 81, 69, 90, 45];
+  return (
+    <div className="h-[400px] bg-[#1e1e1e] p-4 space-y-2.5" aria-hidden="true">
+      {widths.map((w, i) => (
+        <div
+          key={i}
+          className="h-3 rounded bg-white/10 animate-pulse"
+          style={{ width: `${w}%` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+const Editor = dynamic(() => import("@monaco-editor/react"), {
+  ssr: false,
+  loading: () => <EditorSkeleton />,
+});
 
 // 7 steps matching requestLogger files exactly
 const STEPS = [
