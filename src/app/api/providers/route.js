@@ -116,7 +116,11 @@ export async function POST(request) {
     if (!provider || !isValidProvider) {
       return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
     }
-    if (!apiKey && provider !== "ollama-local") {
+    const hasApiKey = Array.isArray(apiKey)
+      ? apiKey.length > 0 && apiKey.some(k => typeof k === "string" && k.trim())
+      : (typeof apiKey === "string" ? Boolean(apiKey.trim()) : Boolean(apiKey));
+
+    if (!hasApiKey && provider !== "ollama-local") {
       return NextResponse.json({ error: `${isWebCookieProvider ? "Cookie value" : "API Key"} is required` }, { status: 400 });
     }
     const connectionName = name || displayName || AI_PROVIDERS[provider]?.name;
@@ -176,7 +180,9 @@ export async function POST(request) {
       provider,
       authType: isWebCookieProvider ? "cookie" : "apikey",
       name: connectionName,
-      apiKey: apiKey || "",
+      apiKey: Array.isArray(apiKey)
+        ? apiKey.map(k => typeof k === "string" ? k.trim() : k).filter(Boolean)
+        : (typeof apiKey === "string" ? apiKey.trim() : (apiKey || "")),
       priority: priority || 1,
       globalPriority: globalPriority || null,
       defaultModel: defaultModel || null,

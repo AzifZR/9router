@@ -9,6 +9,90 @@ import * as log from "../utils/logger.js";
 // Mutex to prevent race conditions during account selection
 let selectionMutex = Promise.resolve();
 
+// In-memory key rotation and cooldown state per connection
+const connectionKeyStates = new Map();
+
+export function getKeyState(connectionId) {
+  let state = connectionKeyStates.get(connectionId);
+  if (!state) {
+    state = {
+      index: 0,
+      lastUsedKey: null,
+      keyCooldowns: new Map(),
+    };
+    connectionKeyStates.set(connectionId, state);
+  }
+  return state;
+}
+
+export function resetKeyRotationState(connectionId = null) {
+  if (connectionId) {
+    connectionKeyStates.delete(connectionId);
+  } else {
+    connectionKeyStates.clear();
+  }
+}
+
+export function selectApiKeyForConnection(connection) {
+  try {
+    const rawKey = connection?.apiKey;
+    if (!rawKey) return "";
+    if (typeof rawKey === "string") return rawKey;
+    if (!Array.isArray(rawKey)) return String(rawKey);
+    if (rawKey.length === 0) return "";
+    if (rawKey.length === 1) {
+      const single = rawKey[0];
+      return typeof single === "string" ? single : (single ? String(single) : "");
+    }
+
+    const keys = rawKey.filter(k => typeof k === "string" && k.length > 0);
+    if (keys.length === 0) {
+      const fallback = rawKey[0];
+      return typeof fallback === "string" ? fallback : (fallback ? String(fallback) : "");
+    }
+
+    const connId = connection.id || "default";
+    const state = getKeyState(connId);
+    const now = Date.now();
+
+    // Clean expired cooldowns
+    for (const [k, exp] of state.keyCooldowns.entries()) {
+      if (exp <= now) state.keyCooldowns.delete(k);
+    }
+
+    // Find available indices not in cooldown
+    const availableIndices = [];
+    for (let i = 0; i < keys.length; i++) {
+      const exp = state.keyCooldowns.get(keys[i]);
+      if (!exp || exp <= now) {
+        availableIndices.push(i);
+      }
+    }
+
+    const candidateIndices = availableIndices.length > 0 ? availableIndices : keys.map((_, i) => i);
+
+    let nextCandidate = candidateIndices.find(idx => idx >= state.index);
+    if (nextCandidate === undefined) {
+      nextCandidate = candidateIndices[0];
+    }
+
+    const pickedKey = keys[nextCandidate];
+    state.lastUsedKey = pickedKey;
+    state.index = (nextCandidate + 1) % keys.length;
+
+    return pickedKey;
+  } catch (err) {
+    try {
+      log.warn("AUTH", `selectApiKeyForConnection error (failing open): ${err?.message}`);
+    } catch {}
+    if (Array.isArray(connection?.apiKey) && connection.apiKey.length > 0) {
+      const fb = connection.apiKey[0];
+      return typeof fb === "string" ? fb : (fb ? String(fb) : "");
+    }
+    return typeof connection?.apiKey === "string" ? connection.apiKey : "";
+  }
+}
+
 const GITHUB_MONTHLY_USAGE_LIMIT = "you've reached your additional usage limit for your plan";
 
 function githubMonthlyResetMs(status, errorText, provider) {
@@ -70,6 +154,30 @@ export async function getProviderCredentials(provider, excludeConnectionIds = nu
     }
 
     const connections = await getProviderConnections({ provider: providerId, isActive: true });
+
+    // Un-exclude multi-key connections that still have available keys
+    if (excludeSet.size > 0) {
+      for (const conn of connections) {
+        if (excludeSet.has(conn.id) && Array.isArray(conn.apiKey) && conn.apiKey.length > 1 && !isModelLockActive(conn, model)) {
+          const keys = conn.apiKey.filter(k => typeof k === "string" && k.length > 0);
+          if (keys.length > 1) {
+            const state = getKeyState(conn.id);
+            const now = Date.now();
+            const hasAvailable = keys.some(k => {
+              const exp = state.keyCooldowns.get(k);
+              return !exp || exp <= now;
+            });
+            if (hasAvailable) {
+              excludeSet.delete(conn.id);
+              if (excludeConnectionIds instanceof Set) {
+                excludeConnectionIds.delete(conn.id);
+              }
+            }
+          }
+        }
+      }
+    }
+
     log.debug("AUTH", `${provider} | total connections: ${connections.length}, excludeIds: ${excludeSet.size > 0 ? [...excludeSet].join(",") : "none"}, model: ${model || "any"}`);
 
     if (connections.length === 0) {
@@ -196,7 +304,7 @@ export async function getProviderCredentials(provider, excludeConnectionIds = nu
 
     return {
       authType: connection.authType,
-      apiKey: connection.apiKey,
+      apiKey: selectApiKeyForConnection(connection),
       accessToken: connection.accessToken,
       refreshToken: connection.refreshToken,
       idToken: connection.idToken,
@@ -263,6 +371,30 @@ export async function markAccountUnavailable(connectionId, status, errorText, pr
   }
   if (!shouldFallback) return { shouldFallback: false, cooldownMs: 0 };
 
+  // Multi-key rotation check: if connection has multiple API keys, advance key before locking account
+  if (Array.isArray(conn?.apiKey) && conn.apiKey.length > 1) {
+    const keys = conn.apiKey.filter(k => typeof k === "string" && k.length > 0);
+    if (keys.length > 1) {
+      const state = getKeyState(connectionId);
+      const activeKey = state.lastUsedKey || keys[0];
+      const keyCooldown = cooldownMs > 0 ? cooldownMs : 60000;
+      state.keyCooldowns.set(activeKey, Date.now() + keyCooldown);
+
+      // Check if there are other keys not in cooldown
+      const now = Date.now();
+      const hasAvailableKey = keys.some(k => {
+        const exp = state.keyCooldowns.get(k);
+        return !exp || exp <= now;
+      });
+
+      if (hasAvailableKey) {
+        const connName = conn?.displayName || conn?.name || conn?.email || connectionId.slice(0, 8);
+        log.warn("AUTH", `${connName}: key rate-limited [${status}], rotating to next key in array`);
+        return { shouldFallback: true, cooldownMs: 0, keyRotated: true };
+      }
+    }
+  }
+
   const reason = typeof errorText === "string" ? errorText.slice(0, 200) : "Provider error";
   const lockUpdate = buildModelLockUpdate(githubResetAtMs ? null : model, cooldownMs);
 
@@ -297,6 +429,10 @@ export async function markAccountUnavailable(connectionId, status, errorText, pr
  */
 export async function clearAccountError(connectionId, currentConnection, model = null) {
   if (!connectionId || connectionId === "noauth") return;
+  const keyState = connectionKeyStates.get(connectionId);
+  if (keyState) {
+    keyState.keyCooldowns.clear();
+  }
   const conn = currentConnection._connection || currentConnection;
   const now = Date.now();
   const allLockKeys = Object.keys(conn).filter(k => k.startsWith("modelLock_"));
