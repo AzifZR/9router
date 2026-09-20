@@ -3,9 +3,116 @@
  */
 
 import { checkFallbackError, formatRetryAfter } from "./accountFallback.js";
-import { unavailableResponse } from "../utils/error.js";
+import { unavailableResponse, errorResponse } from "../utils/error.js";
 import { getCapabilitiesForModel } from "../providers/capabilities.js";
 import { extractTextContent } from "../translator/formats/gemini.js";
+import { PORTWAY_ALIASES } from "../config/aliases.js";
+import { resolveProviderAlias } from "./model.js";
+
+// ============================================================================
+// Virtual Alias Expansion (Self-Healing)
+// ============================================================================
+
+let storeErrorLogged = false;
+export function resetAliasStoreErrorFlag() { storeErrorLogged = false; }
+
+async function fetchHealthConnections(log, forceError = false) {
+  try {
+    if (forceError) {
+      throw new Error("Simulated health store failure");
+    }
+    let mod;
+    try {
+      mod = await import("../../src/lib/localDb.js");
+    } catch {
+      mod = await import("@/lib/localDb");
+    }
+    if (typeof mod?.getProviderConnections === "function") {
+      return await mod.getProviderConnections({ isActive: true });
+    }
+    throw new Error("getProviderConnections not exported");
+  } catch (err) {
+    if (!storeErrorLogged) {
+      storeErrorLogged = true;
+      const msg = `Health store unreadable, falling back to static default alias candidates: ${err?.message || err}`;
+      if (log && typeof log.warn === "function") log.warn("ALIAS", msg);
+      else console.warn(`[ALIAS] ${msg}`);
+    }
+    return null;
+  }
+}
+
+function isConnectionHealthyForModel(conn, modelId) {
+  if (!conn) return false;
+  if (conn.isActive === false || conn.isActive === 0) return false;
+  if (conn.testStatus === "unavailable" || conn.testStatus === "error") return false;
+  const now = Date.now();
+  const accountLock = conn.modelLock___all || conn["modelLock___all"];
+  if (accountLock && new Date(accountLock).getTime() > now) return false;
+  if (modelId) {
+    const modelLock = conn[`modelLock_${modelId}`] || conn["modelLock_" + modelId];
+    if (modelLock && new Date(modelLock).getTime() > now) return false;
+  }
+  return true;
+}
+
+export async function expandVirtualAliases(models, log, options = {}) {
+  if (!Array.isArray(models) || models.length === 0) return { models, errorResponse: null };
+
+  for (const m of models) {
+    if (typeof m === "string" && m.startsWith("portway/")) {
+      if (!PORTWAY_ALIASES[m]) {
+        const validList = Object.keys(PORTWAY_ALIASES).join(", ");
+        const message = `Unknown virtual model alias '${m}'. Valid aliases are: ${validList}`;
+        log?.warn?.("ALIAS", message);
+        return { models: [], errorResponse: errorResponse(400, message) };
+      }
+    }
+  }
+
+  const hasAlias = models.some((m) => typeof m === "string" && m.startsWith("portway/"));
+  if (!hasAlias) return { models, errorResponse: null }; // byte-identical path
+
+  let connections = options.connections;
+  if (options.forceStoreError) connections = await fetchHealthConnections(log, true);
+  else if (connections === undefined) connections = await fetchHealthConnections(log);
+
+  const expanded = [];
+  for (const m of models) {
+    if (typeof m === "string" && PORTWAY_ALIASES[m]) {
+      const aliasDef = PORTWAY_ALIASES[m];
+      const candidates = aliasDef.candidates || [];
+
+      if (!connections) {
+        expanded.push(...candidates);
+      } else {
+        const healthyCandidates = candidates.filter((cand) => {
+          const slash = cand.indexOf("/");
+          const provider = slash > 0 ? cand.slice(0, slash) : cand;
+          const modelId = slash > 0 ? cand.slice(slash + 1) : "";
+          const resolvedProvider = resolveProviderAlias(provider);
+
+          const matchingConns = connections.filter((conn) => {
+            if (!conn) return false;
+            const cp = conn.provider;
+            const cr = resolveProviderAlias(cp);
+            return cp === provider || cp === resolvedProvider || cr === provider || cr === resolvedProvider;
+          });
+
+          if (matchingConns.length === 0) return false;
+          return matchingConns.some((conn) => isConnectionHealthyForModel(conn, modelId));
+        });
+
+        if (healthyCandidates.length > 0) expanded.push(...healthyCandidates);
+        else if (aliasDef.defaultFallback) expanded.push(aliasDef.defaultFallback);
+        else expanded.push(...candidates);
+      }
+    } else {
+      expanded.push(m);
+    }
+  }
+  return { models: expanded, errorResponse: null };
+}
 
 // Hard capabilities = input modalities; missing one drops request data (e.g. image
 // stripped). Must be prioritized. Soft (e.g. search) only degrades a feature.
@@ -278,6 +385,14 @@ export function getComboModelsFromData(modelStr, combosData) {
  * @returns {Promise<Response>}
  */
 export async function handleComboChat({ body, models, handleSingleModel, log, comboName, comboStrategy, comboStickyLimit = 1, autoSwitch = true }) {
+  // ─── Virtual Alias Expansion (Self-Healing) ───────────────────────────
+  const { models: expandedModels, errorResponse: aliasError } = await expandVirtualAliases(models, log);
+  if (aliasError) {
+    return aliasError;
+  }
+  models = expandedModels;
+  // ──────────────────────────────────────────────────────────────────────
+
   // Apply rotation strategy if enabled
   let rotatedModels = getRotatedModels(models, comboName, comboStrategy, comboStickyLimit);
 
