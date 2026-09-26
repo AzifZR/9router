@@ -1,6 +1,6 @@
 {
   "name": "portway-app",
-  "version": "0.5.81",
+  "version": "0.5.86",
   "description": "Portway web dashboard",
   "private": true,
   "scripts": {
